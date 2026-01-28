@@ -32,7 +32,7 @@ public:
         DrawCircle(x, y, radius, WHITE);
     }
 
-    void Update() {
+    void Update(pair<int, int>& score) {
         x += speed_x;
         y += speed_y;
 
@@ -42,6 +42,24 @@ public:
         if (x >= GetScreenWidth() - radius || x <= radius) {
             speed_x *= -1;
         }
+
+        if (x >= GetScreenWidth() - radius) {
+            score.first++;
+            Reset();
+        }
+        if (x <= radius) {
+            score.second++;
+            Reset();
+        }
+    }
+
+    void Reset() {
+        x = convertX(0);
+        y = convertY(0);
+
+        int speed_choices[2] = {-1, 1};
+        speed_x *= speed_choices[GetRandomValue(0, 1)];
+        speed_y *= speed_choices[GetRandomValue(0, 1)];
     }
 };
 
@@ -114,19 +132,35 @@ int main () {
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60); 
+    
+    pair<int, int> score{0, 0};
 
     while(!WindowShouldClose()) {
 
         BeginDrawing();
 
         // Update
-        ball.Update();
+        ball.Update(score);
         p1.Update();
         p2.Update(ball.y);
+
+        // Collision check
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{p1.x, p1.y, p1.width, p1.height}))
+        {
+            ball.speed_x *= -1;
+        }
+        if (CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{p2.x, p2.y, p2.width, p2.height}))
+        {
+            ball.speed_x *= -1;
+        }
 
         // Drawing
         ClearBackground(BLACK);
         DrawLine(SCREEN_WIDTH/2, SCREEN_HEIGHT, SCREEN_WIDTH/2, 0, DARKGRAY);
+        DrawRectangle(0, 0, 20, SCREEN_HEIGHT, DARKGRAY);
+        DrawRectangle(SCREEN_WIDTH-20, 0, 20, SCREEN_HEIGHT, DARKGRAY);
+        DrawText(TextFormat("%i", score.first), convertX(-0.25), convertY(0.90), 80, GRAY);
+        DrawText(TextFormat("%i", score.second), convertX(0.25) - 40, convertY(0.90), 80, GRAY);
 
         ball.Draw();
         p1.Draw();
