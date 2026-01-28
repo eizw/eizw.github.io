@@ -9,6 +9,7 @@ const int SCREEN_HEIGHT = 800;
 const int BALL_SIZE = 15;
 const int PADDLE_WIDTH = 25;
 const int PADDLE_HEIGHT = 120;
+const Color PADDLE_COLOR = WHITE;
 
 
 float convertX(float u) {
@@ -34,6 +35,23 @@ public:
     void Update() {
         x += speed_x;
         y += speed_y;
+
+        if (y >= GetScreenHeight() - radius || y <= radius) {
+            speed_y *= -1;
+        }
+        if (x >= GetScreenWidth() - radius || x <= radius) {
+            speed_x *= -1;
+        }
+    }
+};
+
+class Player {
+public:
+    float x, y;
+    int width, height;
+
+    void Draw() {
+        DrawRectangle(x, y-height/2, width, height, PADDLE_COLOR);
     }
 };
 
@@ -46,6 +64,12 @@ int main () {
     ball.speed_y = 7;
     ball.x = convertX(0);
     ball.y = convertY(0);
+
+    Player p1, p2;
+    p1.width = PADDLE_WIDTH, p2.width = PADDLE_WIDTH;
+    p1.height = PADDLE_HEIGHT, p2.height = PADDLE_HEIGHT;
+    p1.x = convertX(-0.85), p1.y = convertY(0);
+    p2.x = convertX(0.85),  p2.y = convertY(0);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60); 
@@ -62,8 +86,8 @@ int main () {
         DrawLine(SCREEN_WIDTH/2, SCREEN_HEIGHT, SCREEN_WIDTH/2, 0, DARKGRAY);
 
         ball.Draw();
-        DrawRectangle(p1S.x, p1S.y - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, WHITE);
-        DrawRectangle(p2S.x, p2S.y - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT, WHITE);
+        p1.Draw();
+        p2.Draw();
 
 
         EndDrawing();
