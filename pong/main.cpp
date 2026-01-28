@@ -48,28 +48,69 @@ public:
 class Player {
 public:
     float x, y;
-    int width, height;
+    float width, height;
+    int speed;
+    KeyboardKey up_key, down_key;
 
     void Draw() {
-        DrawRectangle(x, y-height/2, width, height, PADDLE_COLOR);
+        DrawRectangle(x, y, width, height, PADDLE_COLOR);
+    }
+
+    void Update() {
+        if (IsKeyDown(up_key)) {
+            y -= speed;
+        }
+        if (IsKeyDown(down_key)) {
+            y += speed;
+        }
+
+        BoundsCheck();
+    }
+
+protected:
+    void BoundsCheck() {
+        if (y <= 0) {
+            y = 0;
+        }
+        if (y + height >= GetScreenHeight()) {
+            y = GetScreenHeight() - height;
+        }
     }
 };
+
+class CpuPlayer: public Player {
+public:
+    void Update(float ball_y) {
+        if (y + height/2 > ball_y) {
+            y -= speed;
+        }
+        if (y + height/2 <= ball_y) {
+            y += speed;
+        }
+
+        BoundsCheck();
+    }
+};
+
+Ball ball;
+Player p1;
+CpuPlayer p2;
 
 int main () {
     cout << "Pong" << endl;
 
-    Ball ball;
     ball.radius = BALL_SIZE;
     ball.speed_x = 7;
     ball.speed_y = 7;
     ball.x = convertX(0);
     ball.y = convertY(0);
 
-    Player p1, p2;
     p1.width = PADDLE_WIDTH, p2.width = PADDLE_WIDTH;
     p1.height = PADDLE_HEIGHT, p2.height = PADDLE_HEIGHT;
     p1.x = convertX(-0.85), p1.y = convertY(0);
     p2.x = convertX(0.85),  p2.y = convertY(0);
+    p1.speed = 6, p2.speed = 6;
+    p1.up_key = KEY_UP, p1.down_key = KEY_DOWN;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60); 
@@ -80,6 +121,8 @@ int main () {
 
         // Update
         ball.Update();
+        p1.Update();
+        p2.Update(ball.y);
 
         // Drawing
         ClearBackground(BLACK);
