@@ -1,6 +1,8 @@
 #include <iostream>
 #include <raylib.h>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 using namespace std;
     
@@ -56,8 +58,10 @@ public:
     void Reset() {
         x = convertX(0);
         y = convertY(0);
+        Draw();
 
         int speed_choices[2] = {-1, 1};
+        this_thread::sleep_for(chrono::milliseconds(500));
         speed_x *= speed_choices[GetRandomValue(0, 1)];
         speed_y *= speed_choices[GetRandomValue(0, 1)];
     }
